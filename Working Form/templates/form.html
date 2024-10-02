@@ -1,0 +1,19 @@
+<html>
+<head>
+    <title>Form</title>
+</head>
+<body>
+    <form action="{{ url_for('get_data') }}" method="post">
+        <label>Name:</label>
+        <input type="text" name="Name" placeholder="Enter Your Name">
+        <br>
+        <label>Email:</label>
+        <input type="email" name="email" placeholder="Email">
+        <br>
+        <label>Mo.No:</label>
+        <input type="tel" name="mobno" placeholder="Mobile No.">
+        <button name="submit" value="Submit">Submit</button>
+
+    </form>
+</body>
+</html>
