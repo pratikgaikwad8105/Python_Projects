@@ -1,6 +1,8 @@
+import groq
 from groq import Groq
 import customtkinter
 from PIL import Image
+import unicodedata
 
 client = Groq(
     api_key="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",
@@ -16,7 +18,7 @@ def chat(prompt):
             }
         ],
 
-        model="gemma2-9b-it",
+        model="llama3-groq-70b-8192-tool-use-preview",
     )
 
     return chat_completion
@@ -27,9 +29,61 @@ def chat(prompt):
 def submit():
 
     try:
-        prompt1 = f"create point wise 200 words report, each line contain format:'Nutrient Contain : Measurement(Unit)' , for food: {food_entry2.get()} , quantity : {food_entry.get()}, don't create any other extra characters in report like ** and ## and ~ and note at last."
-        prompt2 = f"create less than 200 words professional suggestion report like you are diet consultant, I am {food_entry3.get("0.0", "end")} ,eat food {food_entry2.get()}  {food_entry.get()},consider a daily requirements,each line contain point each point is about is this good or bad and less than 10 words,don't create any other extra characters in report like ** and ## and ~ ."
+        prompt1 = f"""Generate a detailed nutrition Table report for the following food item and quantity :
 
+                    Food Item: {food_entry.get()}
+                    Quantity: {food_entry2.get()} 
+                    
+                    Please provide the report in the following format in 20 rows:
+                    
+                    Nutrient Contains : Measurement (Unit) : % of Daily Requirement
+                    
+                    for ex.
+                    
+                    
+                    (give a proper spacing so above format looks like a table)
+                    for ex.
+                    Nutrient Contains  |   Measurement (Unit)    |    % of Daily Requirement
+                    Protein                  4gm                        1%
+                    fat                      3gm                        2%
+                    
+                        
+                    
+
+                    Please use reliable sources, such as the United States Department of Agriculture (USDA) or the National Nutrient Database, to ensure accuracy.
+                    -Don't add the symbols like **,## ~ in the generated text 
+                    -Dont generate any note or suggestion at the last text than given format
+                    """
+
+        prompt2 = f"""  Provide personalized nutrition and health suggestions based on the following food item and quantity:
+        
+                      
+                        Food Item: {food_entry.get()}
+                        Quantity: {food_entry2.get()}
+                        
+                        Assume my goals are:
+                        
+                        -{food_entry3.get("0.0","end")}
+                        
+                        
+                        Format your suggestions as a personalized consultation in 200 words max(point wise), (goal : {food_entry3.get("0.0", "end")})
+                    
+                            
+                        
+
+                        Use evidence-based information and reliable sources, such as the Academy of Nutrition and Dietetics or the World Health Organization, to support your suggestions.
+                        
+                        remind before generating,
+                        -Give Titles in this format ex | Title |,
+                        -point wise
+                        -length : 10 lines(max),
+                        -Don't generate the symbols like **,## ~ or non alphanumeric characters in the text for formatting,
+                        -generate a plain text for better understanding,
+                        -only generate - for each point, allign lines form left side,
+                        -Dont generate any other text than given format,
+                        -length of line : max 8 words
+                        
+                    """
         stat_window = customtkinter.CTk()
         stat_window.geometry("1024x600")
         stat_window.title("Statistics")
@@ -41,14 +95,14 @@ def submit():
         stat_view.add("Gained Nutrients")
         stat_view.add("Suggestions")
 
-        label = customtkinter.CTkLabel(master=stat_view.tab("Gained Nutrients"), text=chat(prompt1).choices[0].message.content, font=("Poppins", 15, "normal"))
+        label = customtkinter.CTkLabel(master=stat_view.tab("Gained Nutrients"), text=unicodedata.normalize("NFKD",chat(prompt1).choices[0].message.content).encode("ascii","ignore").decode("utf-8"), font=("Poppins", 15, "normal"))
         label.grid(row=0, column=0, padx=20, pady=10)
 
-        label = customtkinter.CTkLabel(master=stat_view.tab("Suggestions"), text=chat(prompt2).choices[0].message.content, font=("Poppins", 15, "normal"))
+        label = customtkinter.CTkLabel(master=stat_view.tab("Suggestions"), text=unicodedata.normalize("NFKD",chat(prompt2).choices[0].message.content).encode("ascii", "ignore").decode("utf-8"), font=("Poppins", 15, "normal"))
         label.grid(row=0, column=0, padx=20, pady=10)
 
         stat_window.mainloop()
-    except :
+    except (ConnectionError, groq.APIConnectionError):
         error = customtkinter.CTkToplevel(window)
         error.title("Network Error")
         error.attributes('-topmost', True)
@@ -101,7 +155,7 @@ food_entry2.grid(column=0, row=1, padx=30, pady=20)
 food_description_Frame = customtkinter.CTkFrame(body_Frame, border_color="black", border_width=1, corner_radius=20)
 food_description_Frame.grid(column=0, row=1, padx=20, pady=5, sticky="nw", columnspan=2)
 
-description_label = customtkinter.CTkLabel(master=food_description_Frame, text="Description(eg.age,gender,health issue,etc)", font=("Kanit", 20, "bold"))
+description_label = customtkinter.CTkLabel(master=food_description_Frame, text="Health Goals", font=("Kanit", 20, "bold"))
 description_label.grid(column=0, row=0, padx=5, pady=10)
 
 food_entry3 = customtkinter.CTkTextbox(master=food_description_Frame, width=940, height=100, corner_radius=20, border_width=2, border_color="black")
