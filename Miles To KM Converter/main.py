@@ -1,36 +1,46 @@
-from tkinter import *
+from groq import Groq
+import streamlit as st
+import re
 
-window = Tk()
-window.minsize(300, 170)
-window.title("Mile To KM Converter")
-window.config(padx=30, pady=20)
-
-
-# Button Function
-def onclick():
-    kilometer = (float(distance.get()) * 1.609).__round__(2)
-    label3 = Label(text=f"{kilometer}", font=20)
-    label3.grid(column=1, row=1)
+client = Groq(
+    api_key="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",
+)
 
 
-# Entry
-distance = Entry()
-distance.grid(column=1, row=0)
+def chat(prompt):
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        ],
 
-# Title
-label1 = Label(text="Miles", font=20)
-label1.grid(column=2, row=0, padx=10, pady=10)
+        model="deepseek-r1-distill-llama-70b",
+    )
 
-label2 = Label(text="is equal to ", font=20)
-label2.grid(column=0, row=1)
-
-
-label4 = Label(text="KM", font=20)
-label4.grid(column=2, row=1)
-
-# Button
-button = Button(text="Convert", command=onclick, font=20)
-button.grid(column=1, row=2, padx=20)
+    return chat_completion
 
 
-window.mainloop()
+def healthcare_chatbot(user_input):
+    response = chat(user_input)
+    return response.choices[0].message.content
+
+
+
+
+
+def main():
+    st.title("Healthcare Assistant Chatbot")
+    user_input = st.text_input("How can you assist you today?")
+    if st.button("Submit"):
+        healthcare_chatbot("skip the thinking text. No preamble")
+        if user_input:
+            st.write("User : ", user_input)
+            with st.spinner("Processing your Question"):
+                response = healthcare_chatbot(user_input)
+            st.write("Bot", re.sub("""Bot <think></think>""", "", response))
+        else:
+            st.write("Please Enter text")
+
+main()
