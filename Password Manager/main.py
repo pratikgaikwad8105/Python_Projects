@@ -3,23 +3,22 @@ from tkinter import messagebox
 from random import randint, shuffle, choice
 import pyperclip
 import json
+import customtkinter
+
 
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
-# Password Generator Project
-
-
 def generate_password():
-    letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
-               'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-               'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-    numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-    symbols = ['!', '#', '$', '%', '&', '(', ')', '*', '+']
+    letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    numbers = '0123456789'
+    symbols = '!#$%&()*+'
 
-    letter_list = [choice(letters) for _ in range(randint(8, 10))]
-    symbol_list = [choice(symbols) for _ in range(randint(2, 4))]
-    number_list = [choice(numbers) for _ in range(randint(2, 4))]
-
-    password_list = letter_list + symbol_list + number_list
+    password_list = [
+                        choice(letters) for _ in range(randint(8, 10))
+                    ] + [
+                        choice(symbols) for _ in range(randint(2, 4))
+                    ] + [
+                        choice(numbers) for _ in range(randint(2, 4))
+                    ]
     shuffle(password_list)
 
     password = "".join(password_list)
@@ -28,120 +27,204 @@ def generate_password():
     pyperclip.copy(password)
 
 
-# ---------------------------- SAVE PASSWORD/ SEARCH  ------------------------------- #
-
 def save():
     website = website_entry.get().title()
     password = password_entry.get()
     username = username_entry.get()
-    login_data = {
-        website: {
-            "Username": username,
-            "Password": password
-        }
-    }
 
     if len(website) == 0 or len(username) == 0 or len(password) == 0:
-        messagebox.showwarning(title="Warning!", message="You Leaved Something Empty!")
-    else:
-        is_ok = messagebox.askokcancel(title=f"Conformation({website})", message=f"Website :{website}\nUsername :{username}"
-                                                                                 f"\nPassword :{password}\nIs it Ok?")
-        if is_ok:
-            try:
-                with open("data.json", "r") as file:
-                    try:
-                        data = json.load(file)
-                        data.update(login_data)
-                    except json.decoder.JSONDecodeError:
-                        with open("data.json", "w") as file2:
-                            json.dump(login_data, file2, indent=4)
-                    else:
-                        with open("data.json", "w") as file2:
-                            json.dump(data, file2, indent=4)
-            except FileNotFoundError:
-                with open("data.json", "w") as file:
-                    json.dump(login_data, file, indent=4)
-            except json.decoder.JSONDecodeError:
-                with open("data.json", "w") as file:
-                    json.dump(login_data, file, indent=4)
-            finally:
-                website_entry.delete(0, END)
-                password_entry.delete(0, END)
-                username_entry.delete(0, END)
-            messagebox.showinfo(title="Congratulations", message="Password Saved Successfully")
+        messagebox.showwarning(title="Warning!", message="You Left Something Empty!")
+        return
+
+    is_ok = messagebox.askokcancel(title=f"Confirmation ({website})",
+                                   message=f"Website: {website}\nUsername: {username}\nPassword: {password}\nIs it OK?")
+    if is_ok:
+        login_data = {website: {"Username": username, "Password": password}}
+
+        try:
+            with open("data.json", "r") as file:
+                data = json.load(file)
+        except (FileNotFoundError, json.decoder.JSONDecodeError):
+            data = {}
+
+        data.update(login_data)
+
+        with open("data.json", "w") as file:
+            json.dump(data, file, indent=4)
+
+        website_entry.delete(0, END)
+        password_entry.delete(0, END)
+        username_entry.delete(0, END)
+        messagebox.showinfo(title="Congratulations", message="Password Saved Successfully")
 
 
 def search():
     website = website_entry.get().title()
     if len(website) == 0:
-        messagebox.showwarning(title="Warning!", message="You Leaved Something Empty!")
-    else:
-        try:
-            with open("data.json", "r") as file:
-                try:
-                    _data = json.load(file)
-                    username = _data[website]["Username"]
-                    password = _data[website]["Password"]
-                    messagebox.showinfo(title=f"{website}", message=f"Username: {username}\nPassword: {password}")
-                except KeyError as website:
-                    messagebox.showinfo(title="Check!", message=f"No Data found for {website}")
-                except json.decoder.JSONDecodeError:
-                    messagebox.showinfo(title="Check!", message=f"No Data found for {website}")
-        except FileNotFoundError:
-            with open("data.json", "w"):
-                pass
-            with open("data.json", "r") as file:
-                try:
-                    data = json.load(file)
-                except json.decoder.JSONDecodeError:
-                    messagebox.showinfo(title="Check!", message=f"No Data found for {website}")
+        messagebox.showwarning(title="Warning!", message="You Left Something Empty!")
+        return
+
+    try:
+        with open("data.json", "r") as file:
+            _data = json.load(file)
+            username = _data[website]["Username"]
+            password = _data[website]["Password"]
+            messagebox.showinfo(title=website, message=f"Username: {username}\nPassword: {password}")
+    except (FileNotFoundError, json.decoder.JSONDecodeError, KeyError):
+        messagebox.showinfo(title="Check!", message=f"No Data found for {website}")
 
 
-# ---------------------------- UI SETUP ------------------------------- #
-window = Tk()
-window.title("Password Manager")
-window.config(padx=50, pady=50)
+def sign_in():
+    global username, password
+    global window, website_entry, password_entry, username_entry
+    global logo
+    try:
+        with open("login.json", "r") as file:
+            data = json.load(file)
 
-# canvas
+            try:
 
-canvas = Canvas(width=200, height=200)
-logo = PhotoImage(file="logo.png")
-canvas.create_image(120, 100, image=logo)
-canvas.grid(column=1, row=0)
+                if username.get() == data[username.get()]["Username"] and password.get() == data[username.get()]["Password"]:
+                    signin.destroy()
 
-# Website
-website_label = Label(text="Website :")
-website_label.grid(column=0, row=1, pady=15)
+                    # ----------------------- Main Screen ----------------------#
+                    window = Tk()
+                    window.title("Password Manager")
+                    window.config(padx=50, pady=50)
 
-website_entry = Entry(width=30)
-website_entry.grid(column=1, row=1, padx=5, pady=5)
-website_entry.focus()
+                    # Create a canvas for the logo
+                    canvas = Canvas(window, width=200, height=200)
+                    try:
+                        logo = PhotoImage(file="logo.png")  # Store the logo image
+                        canvas.create_image(100, 100, image=logo)  # Adjusted position for center
+                        canvas.grid(column=1, row=0)
+                    except Exception as e:
+                        print(f"Error loading logo: {e}")
 
-# Search Button
-search = Button(text="Search", width=15, command=search)
-search.grid(column=2, row=1)
+                    # Website label and entry
+                    Label(window, text="Website:").grid(column=0, row=1, pady=15)
+                    website_entry = Entry(window, width=30)
+                    website_entry.grid(column=1, row=1, padx=5, pady=5)
+                    website_entry.focus()
 
-# Email
-username_label = Label(text="Email/Username :")
-username_label.grid(column=0, row=2)
+                    # Search button
+                    Button(window, text="Search", width=15, command=search).grid(column=2, row=1)
 
-username_entry = Entry(width=50)
-username_entry.grid(column=1, row=2, columnspan=2, padx=5, pady=5)
+                    # Username label and entry
+                    Label(window, text="Email/Username:").grid(column=0, row=2)
+                    username_entry = Entry(window, width=50)
+                    username_entry.grid(column=1, row=2, columnspan=2, padx=5, pady=5)
 
-# Password
+                    # Password label and entry
+                    Label(window, text="Password:").grid(column=0, row=3)
+                    password_entry = Entry(window, width=30)
+                    password_entry.grid(column=1, row=3, columnspan=1, padx=5, pady=5)
 
-password_label = Label(text="Password :")
-password_label.grid(column=0, row=3)
+                    # Generate password button
+                    Button(window, text="Generate Password", command=generate_password).grid(column=2, row=3, padx=5,
+                                                                                             pady=5)
 
-password_entry = Entry(width=30)
-password_entry.grid(column=1, row=3, columnspan=1, padx=5, pady=5)
+                    # Add button
+                    Button(window, text="Add", width=45, command=save).grid(column=1, row=4, columnspan=2, padx=5,
+                                                                            pady=5)
 
-generate_button = Button(text="Generate Password", command=generate_password)
-generate_button.grid(column=2, row=3, padx=5, pady=5)
+                    window.mainloop()  # Start the main application loop
+                else:
+                    messagebox.showerror(title="Login Failed", message="Invalid username or password.")
+            except KeyError:
+                messagebox.showerror(title="Login Failed", message="Invalid username or password.")
+    except FileNotFoundError:
+        with open("login.json", "w"):
+            messagebox.showerror(title="Login Failed", message="Invalid username or password.")
 
-# Add Button
 
-add_button = Button(text="Add", width=45, command=save)
-add_button.grid(column=1, row=4, columnspan=2, padx=5, pady=5)
+def sign_up():
+    if len(su_username.get()) == 0 or len(su_password.get()) == 0 or len(re_password.get()) == 0:
+        messagebox.showerror(title="Warning!", message="You Left Something Empty!")
+        return
 
-window.mainloop()
+    if su_password.get() != re_password.get():
+        messagebox.showerror(title="Try Again!", message="Password Not Match!")
+        return
+
+    login_data = {su_username.get(): {"Username": su_username.get(), "Password": su_password.get()}}
+
+    try:
+        with open("login.json", "r") as file:
+            data = json.load(file)
+    except (FileNotFoundError, json.decoder.JSONDecodeError):
+        data = {}
+
+    data.update(login_data)
+
+    with open("login.json", "w") as file:
+        json.dump(data, file, indent=4)
+
+    signup.destroy()
+    sign_in_window()
+
+
+def sign_up_button():
+
+    global su_username, su_password, re_password, signup
+
+    signin.destroy()
+    signup = customtkinter.CTk()
+    signup.title("Signup")
+    signup.geometry("400x400")
+    signup.resizable(False, False)
+
+    su_frame = customtkinter.CTkFrame(master=signup)
+    su_frame.grid(padx=30, pady=30)
+
+    su_label = customtkinter.CTkLabel(master=su_frame, text="Sign up", font=("Archivo Black", 40, "bold"))
+    su_label.grid(padx=20, pady=20, column=0, row=0)
+
+    su_username = customtkinter.CTkEntry(master=su_frame, width=300, height=40, placeholder_text="Username", corner_radius=10)
+    su_username.grid(padx=20, pady=10)
+
+    su_password = customtkinter.CTkEntry(master=su_frame, width=300, height=40, placeholder_text="Password", corner_radius=10)
+    su_password.grid(padx=20, pady=10)
+
+    re_password = customtkinter.CTkEntry(master=su_frame, width=300, height=40, placeholder_text="Confirm Password", corner_radius=10)
+    re_password.grid(padx=20, pady=10)
+
+    signupbutton = customtkinter.CTkButton(master=su_frame, text="Sign Up", corner_radius=30, height=40, width=120, command=sign_up)
+    signupbutton.grid(padx=20, pady=20)
+
+    signup.mainloop()
+
+
+# -------------------------------------- SignIn window ---------------------------------#
+def sign_in_window():
+    global signin, username, password
+    signin = customtkinter.CTk()
+    signin.title("Login")
+    signin.geometry("420x370")
+    signin.resizable(False, False)
+
+    frame = customtkinter.CTkFrame(master=signin)
+    frame.grid(padx=30, pady=30)
+
+    label = customtkinter.CTkLabel(master=frame, text="Login", font=("Archivo Black", 40, "bold"))
+    label.grid(padx=20, pady=20, column=0, row=0)
+
+    username = customtkinter.CTkEntry(master=frame, width=300, height=40, placeholder_text="Username", corner_radius=10)
+    username.grid(padx=20, pady=10)
+
+    password = customtkinter.CTkEntry(master=frame, width=300, height=40, placeholder_text="Password", corner_radius=10)
+    password.grid(padx=20, pady=10)
+
+    inner_frame = customtkinter.CTkFrame(master=frame, fg_color="transparent")
+    inner_frame.grid(padx=20, pady=10)
+
+    signin_button = customtkinter.CTkButton(master=inner_frame, text="Login", corner_radius=30, height=40, width=120, command=sign_in)
+    signin_button.grid(column=0, row=0, padx=20, pady=20)
+
+    signup_button = customtkinter.CTkButton(master=inner_frame, text="Sign Up", corner_radius=30, height=40, width=120, command=sign_up_button)
+    signup_button.grid(column=1, row=0, padx=20, pady=20)
+
+    signin.mainloop()
+
+
+sign_in_window()
