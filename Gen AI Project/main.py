@@ -5,7 +5,7 @@ from PIL import Image
 import unicodedata
 
 client = Groq(
-    api_key="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",
+    api_key="Your API key",
 )
 
 
