@@ -38,6 +38,6 @@ def chat(prompt):
         model="llama-3.1-8b-instant",
     )
 
-    conversation_history.append({"role": "user", "content": chat_completion.choices[0].message.content})
+    conversation_history.append({"role": "assistant", "content": chat_completion.choices[0].message.content})
 
     return chat_completion
