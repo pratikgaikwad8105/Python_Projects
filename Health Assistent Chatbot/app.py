@@ -1,5 +1,5 @@
 from groq import Groq
-import streamlit as st
+import dotenv
 
 system_prompt = """
                     You are a healthcare assistant AI, specializing in medical, nutrition, fitness, and wellness topics.
@@ -15,7 +15,7 @@ system_prompt = """
 
 
 client = Groq(
-    api_key=st.secrets["API_KEY"]
+    api_key=dotenv.get_key(".env", key_to_get="API_KEY"),
 )
 
 conversation_history = [

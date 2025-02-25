@@ -1,0 +1,8 @@
+How to Run :
+
+    Open Terminal 
+    write a command and run : streamlit run UI.py
+
+*Note -: You have to Use your Own API Key
+
+You can get your API key from https://console.groq.com/keys (Need login first)
