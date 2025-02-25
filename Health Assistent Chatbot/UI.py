@@ -1,8 +1,12 @@
 import streamlit as st
 import app
 
+st.set_page_config(
+    page_title="Healthcare_Chatbot_Initial_Version",
+    page_icon="👩‍⚕️"
+)
 
-st.title("Healthcare Chatbot")
+st.title(" 💬 Healthcare Chatbot ")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
