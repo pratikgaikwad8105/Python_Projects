@@ -31,7 +31,7 @@ def chat(prompt):
         messages=conversation_history,
         temperature=0.4,
         top_p=0.9,
-        max_tokens=200,
+        max_tokens=1024,
         stop=["User :", "Assistant :"],
 
 
