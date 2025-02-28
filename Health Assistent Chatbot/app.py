@@ -1,5 +1,5 @@
 from groq import Groq
-import dotenv
+import os
 
 system_prompt = """
                     You are a healthcare assistant AI, specializing in medical, nutrition, fitness, and wellness topics.
@@ -15,7 +15,7 @@ system_prompt = """
 
 
 client = Groq(
-    api_key=dotenv.get_key(".env", key_to_get="API_KEY"),
+    api_key=os.getenv("API_KEY"),
 )
 
 conversation_history = [
@@ -38,6 +38,6 @@ def chat(prompt):
         model="llama-3.1-8b-instant",
     )
 
-    conversation_history.append({"role": "user", "content": chat_completion.choices[0].message.content})
+    conversation_history.append({"role": "assistant", "content": chat_completion.choices[0].message.content})
 
     return chat_completion

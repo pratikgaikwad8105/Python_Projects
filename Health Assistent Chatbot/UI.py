@@ -17,8 +17,6 @@ for message in st.session_state.messages:
 
 prompt = st.chat_input("Ask Me Anything!")
 
-with st.chat_message("assistant"):
-    st.markdown("How can I assist you with a health-related topic today?")
 
 if prompt:
     with st.chat_message("user"):
