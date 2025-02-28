@@ -1,11 +1,10 @@
 import requests
 import io
-import dotenv
 import os
+import streamlit as st
 
-dotenv.load_dotenv()
 
-API_KEY = os.getenv("API_KEY")
+API_KEY = st.secrets["API_KEY"]
 
 
 def generate_speech(text, voice_id):
