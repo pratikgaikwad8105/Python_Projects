@@ -15,14 +15,7 @@ voices = {
     "Elli": {"id": "MF3mGyEYCl7XYWbV9V6O",
              "avatar": "https://wwwnaturalreaderscom.s3.amazonaws.com/comm2022-portraits/el/Catherine.jpg"},
     "Josh": {"id": "TxGEqnHWrfWFTfGW9XjX",
-             "avatar": "https://wwwnaturalreaderscom.s3.amazonaws.com/comm2022-portraits/el/Chris.jpg"},
-    "Charlie": {"id": "IKne3meq5aSn9XLyUdCD",
-                "avatar": "https://wwwnaturalreaderscom.s3.amazonaws.com/pw-portraits/multi-lingual/Echo.jpg"},
-    "Sam": {"id": "yoZ06aMxZJJ28mfd3POQ",
-            "avatar": "https://wwwnaturalreaderscom.s3.amazonaws.com/pw-portraits/multi-lingual/Onyx.jpg"},
-    "Mimi": {"id": "zrHiDhphv9ZnVXBqCLjz",
-             "avatar": "https://wwwnaturalreaderscom.s3.amazonaws.com/pw-portraits/multi-lingual/Nova.jpg"},
-
+             "avatar": "https://wwwnaturalreaderscom.s3.amazonaws.com/comm2022-portraits/el/Chris.jpg"}
 }
 
 
